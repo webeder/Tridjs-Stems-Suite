@@ -13,12 +13,15 @@
 #define NOMINMAX
 
 #ifdef _WIN32
+#define NOMINMAX
 #include <windows.h>
 #endif
 
 // Include LibTorch
 #include <torch/script.h>
 #include <torch/torch.h>
+
+
 
 // Include Audio Decoders
 #define DR_WAV_IMPLEMENTATION
@@ -54,6 +57,16 @@ void StemEngine::initialize() {
     initialized = true;
 }
 
+#ifdef _WIN32
+static bool checkCudaSEH() {
+    __try {
+        return torch::cuda::is_available() ? true : false;
+    } __except(EXCEPTION_EXECUTE_HANDLER) {
+        return false;
+    }
+}
+#endif
+
 void StemEngine::loadModel(const std::string& modelPath) {
     if (!initialized) initialize();
     if (modelLoaded) return;
@@ -61,16 +74,21 @@ void StemEngine::loadModel(const std::string& modelPath) {
     currentStatus = Status::ModelLoading;
 
     try {
-        // Prevent PyTorch gradients accumulation
         torch::NoGradGuard no_grad;
         
-        // Limit multithreading to avoid choking host CPU cores
         torch::set_num_threads(4);
         torch::set_num_interop_threads(4);
 
         impl->model = torch::jit::load(modelPath);
         
-        if (torch::cuda::is_available()) {
+        bool hasCUDA = false;
+#ifdef _WIN32
+        hasCUDA = checkCudaSEH();
+#else
+        hasCUDA = torch::cuda::is_available();
+#endif
+        
+        if (hasCUDA) {
             currentStatus = Status::CudaLoading;
             impl->device = torch::Device(torch::kCUDA);
             impl->model.to(impl->device);

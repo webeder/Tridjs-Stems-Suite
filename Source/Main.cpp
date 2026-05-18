@@ -3,6 +3,8 @@
 #include "StemEngine.h"
 #include <algorithm>
 
+
+
 class TriDJsStemsApplication  : public juce::JUCEApplication
 {
 public:

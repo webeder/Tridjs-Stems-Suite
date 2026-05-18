@@ -22,7 +22,7 @@ public:
         auto txt = button.getButtonText();
 
         // 1. Clear Button (Text only)
-        if (txt == "Voltar ao Início")
+        if (txt == juce::String(juce::CharPointer_UTF8("Voltar ao In\xc3\xad" "cio")))
         {
             if (shouldDrawButtonAsHighlighted || shouldDrawButtonAsPressed)
             {
@@ -117,7 +117,7 @@ public:
             return;
         }
 
-        if (txt == "Voltar ao Início")
+        if (txt == juce::String(juce::CharPointer_UTF8("Voltar ao In\xc3\xad" "cio")))
         {
             g.setFont (juce::Font ("Geist", 12.0f, juce::Font::bold));
             g.setColour (shouldDrawButtonAsHighlighted ? juce::Colour::fromString("#FFFFB4AB") : juce::Colour::fromString("#FFC1C6D7"));
@@ -129,7 +129,7 @@ public:
         bool isCircular = (std::abs(button.getWidth() - button.getHeight()) < 5);
         if (isCircular)
         {
-            g.setFont (juce::Font ("Geist", 18.0f, juce::Font::bold));
+            g.setFont (juce::Font (18.0f));
             auto accentCol = button.findColour(juce::TextButton::textColourOffId);
             g.setColour (shouldDrawButtonAsPressed ? accentCol.brighter(0.2f) : accentCol);
             g.drawText (txt, button.getLocalBounds().withY(button.getLocalBounds().getY() - 1), juce::Justification::centred);
@@ -294,7 +294,7 @@ private:
     std::vector<std::unique_ptr<StemPlayer>> stemPlayers;
     
     juce::TextButton downloadAllBtn { "Salvar todas" };
-    juce::TextButton clearBtn { "Voltar ao Início" };
+    juce::TextButton clearBtn { juce::CharPointer_UTF8("Voltar ao In\xc3\xad" "cio") };
 
     // Audio Engine
     juce::AudioFormatManager formatManager;

@@ -206,8 +206,8 @@ void MainComponent::drawUploadScreen(juce::Graphics &g) {
 
   g.setColour(juce::Colour::fromString("#FFC1C6D7")); // on-surface-variant
   g.setFont(juce::Font("Geist", 14.0f, juce::Font::plain));
-  g.drawText("Envie qualquer arquivo de áudio para gerar stems de nível "
-             "profissional (Bateria, Baixo, Vocal, Outros).",
+  g.drawText(juce::String(juce::CharPointer_UTF8(
+      "Envie qualquer arquivo de \xc3\xa1udio para gerar stems de n\xc3\xadvel profissional (Bateria, Baixo, Vocal, Outros).")),
              titleArea, juce::Justification::centred);
 
   // 2. Main Bento Grid Area (remaining space minus bottom section)
@@ -248,13 +248,13 @@ void MainComponent::drawUploadScreen(juce::Graphics &g) {
 
   g.setColour(juce::Colours::white);
   g.setFont(juce::Font("Geist", 20.0f, juce::Font::bold));
-  g.drawText("Envie ou arraste sua música aqui",
+  g.drawText(juce::String(juce::CharPointer_UTF8("Envie ou arraste sua m\xc3\xbasica aqui")),
              leftCard.withY(leftCard.getCentreY() - 10).withHeight(30),
              juce::Justification::centred);
 
   g.setColour(juce::Colour::fromString("#FF8B90A0"));
   g.setFont(juce::Font("JetBrains Mono", 11.0f, juce::Font::plain));
-  g.drawText("MP3, WAV ou FLAC até 50MB",
+  g.drawText(juce::String(juce::CharPointer_UTF8("MP3, WAV ou FLAC at\xc3\xa9 50MB")),
              leftCard.withY(leftCard.getCentreY() + 20).withHeight(20),
              juce::Justification::centred);
 
@@ -283,13 +283,13 @@ void MainComponent::drawUploadScreen(juce::Graphics &g) {
 
   g.setColour(colDrums);
   g.setFont(juce::Font("Geist", 15.0f, juce::Font::bold));
-  g.drawText("Saída Sem Perdas", hqIconArea.translated(8, 0),
+  g.drawText(juce::String(juce::CharPointer_UTF8("Sa\xc3\xad" "da Sem Perdas")), hqIconArea.translated(8, 0),
              juce::Justification::centredLeft);
 
   g.setColour(juce::Colour::fromString("#FFC1C6D7"));
   g.setFont(juce::Font("Geist", 12.0f, juce::Font::plain));
   g.drawText(
-      "Nossa IA mantém a máxima fidelidade de 24 bits durante todo o processo.",
+      juce::String(juce::CharPointer_UTF8("Nossa IA mant\xc3\xa9m a m\xc3\xa1xima fidelidade de 24 bits durante todo o processo.")),
       card1Text, juce::Justification::topLeft, true);
 
   // Card 2: Ultra Fast (Ultra Rápido)
@@ -314,12 +314,12 @@ void MainComponent::drawUploadScreen(juce::Graphics &g) {
 
   g.setColour(colBass);
   g.setFont(juce::Font("Geist", 15.0f, juce::Font::bold));
-  g.drawText("Ultra Rápido", boltIconArea.translated(8, 0),
+  g.drawText(juce::String(juce::CharPointer_UTF8("Ultra R\xc3\xa1pido")), boltIconArea.translated(8, 0),
              juce::Justification::centredLeft);
 
   g.setColour(juce::Colour::fromString("#FFC1C6D7"));
   g.setFont(juce::Font("Geist", 12.0f, juce::Font::plain));
-  g.drawText("Tempo estimado: ~45 segundos para faixas de duração média.",
+  g.drawText(juce::String(juce::CharPointer_UTF8("Tempo estimado: ~45 segundos para faixas de dura\xc3\xa7\xc3\xa3o m\xc3\xa9" "dia.")),
              card2Text, juce::Justification::topLeft, true);
 
   // Card 3: Recent Stems (Stems Recentes)
@@ -376,7 +376,7 @@ void MainComponent::drawUploadScreen(juce::Graphics &g) {
   auto bottomArea = area;
   g.setColour(juce::Colour::fromString("#FF8B90A0"));
   g.setFont(juce::Font("JetBrains Mono", 11.0f, juce::Font::bold));
-  g.drawText("ARQUITETURA DE EXTRAÇÃO POR IA", bottomArea.removeFromTop(20),
+  g.drawText(juce::String(juce::CharPointer_UTF8("ARQUITETURA DE EXTRA\xc3\x87\xc3\x83O POR IA")), bottomArea.removeFromTop(20),
              juce::Justification::centredLeft);
 
   auto stemGrid = bottomArea.reduced(2);
@@ -845,8 +845,9 @@ void MainComponent::startProcessing(const juce::File &fileToProcess) {
           finalizeProcessing();
         } else {
           juce::AlertWindow::showMessageBoxAsync(
-              juce::AlertWindow::WarningIcon, "Erro de Processamento",
-              "A extração de stems falhou ou foi interrompida.");
+              juce::AlertWindow::WarningIcon,
+              juce::String(juce::CharPointer_UTF8("Erro de Processamento")),
+              juce::String(juce::CharPointer_UTF8("A extra\xc3\xa7\xc3\xa3o de stems falhou ou foi interrompida.")));
           currentState = AppState::ScreenUpload;
           resized();
           repaint();
@@ -891,7 +892,8 @@ void MainComponent::timerCallback() {
     } else if (percent == 100) {
       statusText = "Concluindo processamento...";
     } else {
-      statusText = "Carregando áudio e inicializando engine de IA (Aguarde)...";
+      statusText = juce::String(juce::CharPointer_UTF8(
+          "Carregando \xc3\xa1udio e inicializando engine de IA (Aguarde)..."));
     }
 
     progressLabel.setText(statusText, juce::dontSendNotification);

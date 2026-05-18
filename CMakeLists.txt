@@ -43,6 +43,15 @@ target_compile_definitions(TriDJs_Separador_Stems PRIVATE
     JUCE_DISPLAY_SPLASH_SCREEN=0
 )
 
+if(MSVC)
+    target_compile_options(TriDJs_Separador_Stems PRIVATE /utf-8)
+    target_link_options(TriDJs_Separador_Stems PRIVATE
+        /DELAYLOAD:torch_cuda.dll
+        /DELAYLOAD:c10_cuda.dll
+        /DELAYLOAD:caffe2_nvrtc.dll
+        delayimp.lib)
+endif()
+
 target_link_libraries(TriDJs_Separador_Stems PRIVATE
     "${TORCH_LIBRARIES}"
     juce::juce_audio_basics
