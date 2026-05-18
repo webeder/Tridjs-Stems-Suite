@@ -1,0 +1,31 @@
+# Compilations and Builds
+/build/
+/out/
+CMakeSettings.json
+
+# Visual Studio & IDEs
+/.vs/
+/*.user
+/*.suo
+/*.sln
+/*.vcxproj*
+/*.filters
+/*.aps
+
+# Temporary logs and debug files
+/app_log.txt
+/process_log.txt
+/stdout_log.txt
+/stderr_log.txt
+/app_log.txt
+/*.log
+
+# Heavy pre-compiled libraries and binary folders (must be ignored to prevent GitHub rejection)
+/TriDJs_Separador_Stems/
+/TriDJs_Separador_StemsOLD/
+*.pt
+*.exe
+*.dll
+
+# macOS
+.DS_Store

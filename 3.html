@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Geist:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-fixed": "#50ffaf",
+                    "on-primary-container": "#00285b",
+                    "surface-container-high": "#2a2a2a",
+                    "surface-container-lowest": "#0e0e0e",
+                    "on-primary": "#002e68",
+                    "primary-fixed": "#d8e2ff",
+                    "outline-variant": "#414754",
+                    "error": "#ffb4ab",
+                    "surface-container": "#201f1f",
+                    "secondary-fixed-dim": "#00e293",
+                    "secondary-container": "#01f5a0",
+                    "background": "#131313",
+                    "on-background": "#e5e2e1",
+                    "tertiary-container": "#cda800",
+                    "surface-dim": "#131313",
+                    "on-surface-variant": "#c1c6d7",
+                    "on-primary-fixed": "#001a41",
+                    "secondary": "#ceffdf",
+                    "surface-bright": "#393939",
+                    "surface-container-low": "#1c1b1b",
+                    "error-container": "#93000a",
+                    "on-error-container": "#ffdad6",
+                    "surface-variant": "#353534",
+                    "primary-fixed-dim": "#adc7ff",
+                    "surface-container-highest": "#353534",
+                    "surface-tint": "#adc7ff",
+                    "inverse-primary": "#005bc0",
+                    "on-secondary-fixed-variant": "#005232",
+                    "on-secondary": "#003921",
+                    "primary": "#adc7ff",
+                    "primary-container": "#4a8eff",
+                    "surface": "#131313",
+                    "on-surface": "#e5e2e1",
+                    "on-error": "#690005",
+                    "tertiary-fixed-dim": "#ebc31a",
+                    "outline": "#8b90a0",
+                    "on-tertiary-container": "#4d3e00",
+                    "tertiary": "#ecc31b",
+                    "on-tertiary-fixed": "#231b00",
+                    "on-tertiary-fixed-variant": "#564500",
+                    "inverse-surface": "#e5e2e1",
+                    "inverse-on-surface": "#313030",
+                    "on-secondary-fixed": "#002111",
+                    "on-secondary-container": "#006b43",
+                    "on-tertiary": "#3b2f00",
+                    "tertiary-fixed": "#ffe07d"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "lg": "24px",
+                    "xl": "32px",
+                    "md": "16px",
+                    "base": "8px",
+                    "sm": "8px",
+                    "xs": "4px",
+                    "gutter": "16px",
+                    "margin": "24px"
+            },
+            "fontFamily": {
+                    "label-md": ["JetBrains Mono"],
+                    "label-sm": ["JetBrains Mono"],
+                    "headline-lg": ["Geist"],
+                    "body-sm": ["Geist"],
+                    "headline-lg-mobile": ["Geist"],
+                    "display-lg": ["Geist"],
+                    "headline-md": ["Geist"],
+                    "body-lg": ["Geist"]
+            },
+            "fontSize": {
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "label-sm": ["10px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .waveform-bg {
+            background: linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 8px 100%;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-lg text-body-lg">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center w-full px-margin py-base z-50 bg-background dark:bg-background">
+<div class="flex items-center gap-base">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim" data-icon="graphic_eq">graphic_eq</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim tracking-tighter">TriDJs Stems</h1>
+</div>
+<button class="hover:brightness-110 transition-all active:scale-95 duration-200">
+<span class="material-symbols-outlined text-on-surface-variant dark:text-on-surface-variant" data-icon="settings">settings</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 px-margin py-lg space-y-md overflow-y-auto pb-32">
+<!-- Track: Vocal (Green Theme) -->
+<section class="bg-surface-container-low rounded-xl p-md flex flex-col gap-sm border-l-4 border-secondary-fixed relative overflow-hidden group">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-sm">
+<span class="font-label-md text-label-md text-secondary-fixed uppercase tracking-widest">Vocal</span>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<!-- Left: Controls -->
+<div class="flex gap-xs">
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-high border border-secondary-fixed/30 text-secondary-fixed hover:bg-secondary-fixed hover:text-on-secondary transition-all active:scale-90 shadow-[0_0_10px_rgba(80,255,175,0.2)]">
+<span class="material-symbols-outlined" data-icon="play_arrow" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-high border border-outline/20 text-on-surface-variant hover:border-error hover:text-error transition-all active:scale-90">
+<span class="material-symbols-outlined" data-icon="stop" style="font-variation-settings: 'FILL' 1;">stop</span>
+</button>
+</div>
+<!-- Middle: Stylized Waveform -->
+<div class="flex-1 h-16 bg-surface-container-lowest rounded-lg relative overflow-hidden waveform-bg flex items-center px-xs gap-[2px]">
+<!-- Waveform Bars -->
+<div class="w-1 h-4 bg-secondary-fixed/40 rounded-full"></div>
+<div class="w-1 h-6 bg-secondary-fixed/40 rounded-full"></div>
+<div class="w-1 h-10 bg-secondary-fixed rounded-full shadow-[0_0_8px_rgba(80,255,175,0.5)]"></div>
+<div class="w-1 h-8 bg-secondary-fixed rounded-full shadow-[0_0_8px_rgba(80,255,175,0.5)]"></div>
+<div class="w-1 h-12 bg-secondary-fixed rounded-full shadow-[0_0_8px_rgba(80,255,175,0.5)]"></div>
+<div class="w-1 h-4 bg-secondary-fixed/40 rounded-full"></div>
+<div class="w-1 h-9 bg-secondary-fixed rounded-full shadow-[0_0_8px_rgba(80,255,175,0.5)]"></div>
+<div class="w-1 h-11 bg-secondary-fixed rounded-full shadow-[0_0_8px_rgba(80,255,175,0.5)]"></div>
+<div class="w-1 h-14 bg-secondary-fixed rounded-full shadow-[0_0_8px_rgba(80,255,175,0.5)]"></div>
+<div class="w-1 h-7 bg-secondary-fixed/40 rounded-full"></div>
+<div class="w-1 h-5 bg-secondary-fixed/40 rounded-full"></div>
+<div class="w-1 h-10 bg-secondary-fixed/40 rounded-full"></div>
+<div class="w-1 h-12 bg-secondary-fixed/40 rounded-full"></div>
+<!-- Playhead -->
+<div class="absolute left-1/4 top-0 bottom-0 w-[2px] bg-on-background z-10">
+<div class="absolute -top-1 -left-[3px] w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[6px] border-t-on-background"></div>
+</div>
+</div>
+<!-- Right: Download -->
+<button class="p-base text-on-surface-variant hover:text-secondary-fixed transition-colors active:scale-90">
+<span class="material-symbols-outlined" data-icon="download">download</span>
+</button>
+</div>
+</section>
+<!-- Track: Bass (Yellow Theme) -->
+<section class="bg-surface-container-low rounded-xl p-md flex flex-col gap-sm border-l-4 border-tertiary rounded-xl relative overflow-hidden group">
+<div class="flex justify-between items-center">
+<span class="font-label-md text-label-md text-tertiary uppercase tracking-widest">Bass</span>
+</div>
+<div class="flex items-center gap-md">
+<div class="flex gap-xs">
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-high border border-tertiary/30 text-tertiary hover:bg-tertiary hover:text-on-tertiary transition-all active:scale-90 shadow-[0_0_10px_rgba(236,195,27,0.2)]">
+<span class="material-symbols-outlined" data-icon="play_arrow" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-high border border-outline/20 text-on-surface-variant hover:border-error hover:text-error transition-all active:scale-90">
+<span class="material-symbols-outlined" data-icon="stop" style="font-variation-settings: 'FILL' 1;">stop</span>
+</button>
+</div>
+<div class="flex-1 h-16 bg-surface-container-lowest rounded-lg relative overflow-hidden waveform-bg flex items-center px-xs gap-[2px]">
+<div class="w-1 h-8 bg-tertiary/40 rounded-full"></div>
+<div class="w-1 h-10 bg-tertiary/40 rounded-full"></div>
+<div class="w-1 h-12 bg-tertiary rounded-full shadow-[0_0_8px_rgba(236,195,27,0.5)]"></div>
+<div class="w-1 h-14 bg-tertiary rounded-full shadow-[0_0_8px_rgba(236,195,27,0.5)]"></div>
+<div class="w-1 h-11 bg-tertiary rounded-full shadow-[0_0_8px_rgba(236,195,27,0.5)]"></div>
+<div class="w-1 h-13 bg-tertiary/40 rounded-full"></div>
+<div class="w-1 h-15 bg-tertiary/40 rounded-full"></div>
+</div>
+<button class="p-base text-on-surface-variant hover:text-tertiary transition-colors active:scale-90">
+<span class="material-symbols-outlined" data-icon="download">download</span>
+</button>
+</div>
+</section>
+<!-- Track: Drums (Red Theme) -->
+<section class="bg-surface-container-low rounded-xl p-md flex flex-col gap-sm border-l-4 border-error rounded-xl relative overflow-hidden group">
+<div class="flex justify-between items-center">
+<span class="font-label-md text-label-md text-error uppercase tracking-widest">Drums</span>
+</div>
+<div class="flex items-center gap-md">
+<div class="flex gap-xs">
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-high border border-error/30 text-error hover:bg-error hover:text-on-error transition-all active:scale-90 shadow-[0_0_10px_rgba(255,180,171,0.2)]">
+<span class="material-symbols-outlined" data-icon="play_arrow" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-high border border-outline/20 text-on-surface-variant hover:border-error hover:text-error transition-all active:scale-90">
+<span class="material-symbols-outlined" data-icon="stop" style="font-variation-settings: 'FILL' 1;">stop</span>
+</button>
+</div>
+<div class="flex-1 h-16 bg-surface-container-lowest rounded-lg relative overflow-hidden waveform-bg flex items-center px-xs gap-[2px]">
+<div class="w-1 h-14 bg-error rounded-full shadow-[0_0_8px_rgba(255,180,171,0.5)]"></div>
+<div class="w-1 h-4 bg-error rounded-full shadow-[0_0_8px_rgba(255,180,171,0.5)]"></div>
+<div class="w-1 h-14 bg-error rounded-full shadow-[0_0_8px_rgba(255,180,171,0.5)]"></div>
+<div class="w-1 h-4 bg-error/40 rounded-full"></div>
+<div class="w-1 h-14 bg-error/40 rounded-full"></div>
+</div>
+<button class="p-base text-on-surface-variant hover:text-error transition-colors active:scale-90">
+<span class="material-symbols-outlined" data-icon="download">download</span>
+</button>
+</div>
+</section>
+<!-- Track: Other (Blue Theme) -->
+<section class="bg-surface-container-low rounded-xl p-md flex flex-col gap-sm border-l-4 border-primary rounded-xl relative overflow-hidden group">
+<div class="flex justify-between items-center">
+<span class="font-label-md text-label-md text-primary uppercase tracking-widest">Other</span>
+</div>
+<div class="flex items-center gap-md">
+<div class="flex gap-xs">
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-high border border-primary/30 text-primary hover:bg-primary hover:text-on-primary transition-all active:scale-90 shadow-[0_0_10px_rgba(173,199,255,0.2)]">
+<span class="material-symbols-outlined" data-icon="play_arrow" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-high border border-outline/20 text-on-surface-variant hover:border-error hover:text-error transition-all active:scale-90">
+<span class="material-symbols-outlined" data-icon="stop" style="font-variation-settings: 'FILL' 1;">stop</span>
+</button>
+</div>
+<div class="flex-1 h-16 bg-surface-container-lowest rounded-lg relative overflow-hidden waveform-bg flex items-center px-xs gap-[2px]">
+<div class="w-1 h-6 bg-primary/40 rounded-full"></div>
+<div class="w-1 h-8 bg-primary rounded-full shadow-[0_0_8px_rgba(173,199,255,0.5)]"></div>
+<div class="w-1 h-10 bg-primary rounded-full shadow-[0_0_8px_rgba(173,199,255,0.5)]"></div>
+<div class="w-1 h-7 bg-primary/40 rounded-full"></div>
+</div>
+<button class="p-base text-on-surface-variant hover:text-primary transition-colors active:scale-90">
+<span class="material-symbols-outlined" data-icon="download">download</span>
+</button>
+</div>
+</section>
+<!-- Bottom Action Area -->
+<div class="fixed bottom-20 left-0 w-full px-margin pb-6 flex flex-col gap-sm bg-gradient-to-t from-background via-background to-transparent z-40">
+<button class="w-full py-md bg-secondary-container text-on-secondary-container rounded-xl font-headline-md text-headline-md font-bold hover:brightness-110 active:scale-[0.98] transition-all shadow-[0_4px_20px_rgba(80,255,175,0.3)] flex items-center justify-center gap-sm">
+<span class="material-symbols-outlined" data-icon="cloud_download" style="font-variation-settings: 'FILL' 1;">cloud_download</span>
+                Salvar todas
+            </button>
+<button class="w-full py-base text-on-surface-variant font-label-md text-label-md uppercase tracking-widest hover:text-error transition-colors active:scale-95">
+                Limpar
+            </button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-gutter py-sm bg-surface-container-low dark:bg-surface-container-low rounded-t-xl">
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant p-3 hover:text-secondary-fixed transition-colors active:scale-90 duration-150">
+<span class="material-symbols-outlined" data-icon="upload_file">upload_file</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-secondary-container dark:bg-secondary-container text-on-secondary-container dark:text-on-secondary-container rounded-full p-3 shadow-[0_0_8px_rgba(80,255,175,0.4)] active:scale-90 duration-150">
+<span class="material-symbols-outlined" data-icon="library_music" style="font-variation-settings: 'FILL' 1;">library_music</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant p-3 hover:text-secondary-fixed transition-colors active:scale-90 duration-150">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant p-3 hover:text-secondary-fixed transition-colors active:scale-90 duration-150">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</div>
+</nav>
+</body></html>
