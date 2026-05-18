@@ -66,3 +66,76 @@ target_link_libraries(TriDJs_Separador_Stems PRIVATE
     juce::juce_gui_basics
     juce::juce_gui_extra
 )
+
+# =============================================================================
+# Copia automaticamente todas as DLLs do LibTorch para junto do executável
+# após cada build (Debug e Release), evitando erro de "DLL não encontrada"
+# =============================================================================
+set(TORCH_DLL_DIR "C:/TridjsStems/libtorch/lib")
+
+add_custom_command(TARGET TriDJs_Separador_Stems POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${TORCH_DLL_DIR}/c10.dll"
+        "$<TARGET_FILE_DIR:TriDJs_Separador_Stems>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${TORCH_DLL_DIR}/torch.dll"
+        "$<TARGET_FILE_DIR:TriDJs_Separador_Stems>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${TORCH_DLL_DIR}/torch_cpu.dll"
+        "$<TARGET_FILE_DIR:TriDJs_Separador_Stems>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${TORCH_DLL_DIR}/torch_cuda.dll"
+        "$<TARGET_FILE_DIR:TriDJs_Separador_Stems>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${TORCH_DLL_DIR}/c10_cuda.dll"
+        "$<TARGET_FILE_DIR:TriDJs_Separador_Stems>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${TORCH_DLL_DIR}/caffe2_nvrtc.dll"
+        "$<TARGET_FILE_DIR:TriDJs_Separador_Stems>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${TORCH_DLL_DIR}/fbgemm.dll"
+        "$<TARGET_FILE_DIR:TriDJs_Separador_Stems>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${TORCH_DLL_DIR}/libiomp5md.dll"
+        "$<TARGET_FILE_DIR:TriDJs_Separador_Stems>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${TORCH_DLL_DIR}/mkl_core.1.dll"
+        "$<TARGET_FILE_DIR:TriDJs_Separador_Stems>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${TORCH_DLL_DIR}/mkl_intel_thread.1.dll"
+        "$<TARGET_FILE_DIR:TriDJs_Separador_Stems>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${TORCH_DLL_DIR}/cudart64_12.dll"
+        "$<TARGET_FILE_DIR:TriDJs_Separador_Stems>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${TORCH_DLL_DIR}/cublas64_12.dll"
+        "$<TARGET_FILE_DIR:TriDJs_Separador_Stems>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${TORCH_DLL_DIR}/cublasLt64_12.dll"
+        "$<TARGET_FILE_DIR:TriDJs_Separador_Stems>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${TORCH_DLL_DIR}/cudnn64_8.dll"
+        "$<TARGET_FILE_DIR:TriDJs_Separador_Stems>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${TORCH_DLL_DIR}/cudnn_cnn_infer64_8.dll"
+        "$<TARGET_FILE_DIR:TriDJs_Separador_Stems>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${TORCH_DLL_DIR}/cudnn_ops_infer64_8.dll"
+        "$<TARGET_FILE_DIR:TriDJs_Separador_Stems>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${TORCH_DLL_DIR}/nvrtc64_120_0.dll"
+        "$<TARGET_FILE_DIR:TriDJs_Separador_Stems>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${TORCH_DLL_DIR}/nvrtc-builtins64_121.dll"
+        "$<TARGET_FILE_DIR:TriDJs_Separador_Stems>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${TORCH_DLL_DIR}/asmjit.dll"
+        "$<TARGET_FILE_DIR:TriDJs_Separador_Stems>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${TORCH_DLL_DIR}/uv.dll"
+        "$<TARGET_FILE_DIR:TriDJs_Separador_Stems>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${TORCH_DLL_DIR}/zlibwapi.dll"
+        "$<TARGET_FILE_DIR:TriDJs_Separador_Stems>"
+    COMMENT "Copiando DLLs do LibTorch/CUDA para o diretório do executável..."
+)
