@@ -1,6 +1,125 @@
 #include "MainComponent.h"
 #include "StemEngine.h"
 
+// =========================================================================
+// RssFetcher – baixa o RSS feed e as 3 thumbnails em thread separada
+void RssFetcher::run()
+{
+    const juce::String feedUrl =
+        "https://www.youtube.com/feeds/videos.xml?playlist_id=PLyzIg3kuoGrkdHFgNAshNtqW7JVgvArrN";
+
+    success = false;
+
+    try
+    {
+        // --- 1. Download XML ---
+        juce::URL url (feedUrl);
+        juce::StringPairArray headers;
+        int statusCode = 0;
+        auto stream = url.createInputStream (
+            juce::URL::InputStreamOptions (juce::URL::ParameterHandling::inAddress)
+                .withConnectionTimeoutMs (8000)
+                .withStatusCode (&statusCode));
+
+        if (stream == nullptr || statusCode < 200 || statusCode > 299)
+        {
+            juce::MessageManager::callAsync (onComplete);
+            return;
+        }
+
+        juce::String xmlText = stream->readEntireStreamAsString();
+        if (threadShouldExit()) return;
+
+        // --- 2. Parse XML ---
+        auto xml = juce::XmlDocument::parse (xmlText);
+        if (xml == nullptr)
+        {
+            juce::MessageManager::callAsync (onComplete);
+            return;
+        }
+
+        // The Atom feed entries are direct children named "entry"
+        int count = 0;
+        for (auto* child = xml->getFirstChildElement();
+             child != nullptr && count < 3;
+             child = child->getNextElement())
+        {
+            if (child->getTagName().equalsIgnoreCase ("entry"))
+            {
+                VideoInfo v;
+                // Title
+                if (auto* titleEl = child->getChildByName ("title"))
+                    v.title = titleEl->getAllSubText().trim();
+
+                // Video ID / link
+                for (auto* linkEl = child->getChildByName ("link");
+                     linkEl != nullptr;
+                     linkEl = linkEl->getNextElementWithTagName ("link"))
+                {
+                    if (linkEl->getStringAttribute ("rel") == "alternate")
+                    {
+                        v.videoUrl = linkEl->getStringAttribute ("href");
+                        break;
+                    }
+                }
+
+                // YouTube Media namespace: media:thumbnail
+                // Tag can appear as "media:thumbnail" or "media:group" > "media:thumbnail"
+                auto findThumbnail = [](juce::XmlElement* parent) -> juce::String
+                {
+                    if (parent == nullptr) return {};
+                    for (auto* el = parent->getFirstChildElement(); el != nullptr; el = el->getNextElement())
+                    {
+                        auto tag = el->getTagName();
+                        if (tag.containsIgnoreCase ("thumbnail"))
+                            return el->getStringAttribute ("url");
+                        // Recurse one level into media:group
+                        if (tag.containsIgnoreCase ("group"))
+                        {
+                            for (auto* sub = el->getFirstChildElement(); sub != nullptr; sub = sub->getNextElement())
+                                if (sub->getTagName().containsIgnoreCase ("thumbnail"))
+                                    return sub->getStringAttribute ("url");
+                        }
+                    }
+                    return {};
+                };
+
+                v.thumbnailUrl = findThumbnail (child);
+
+                // --- 3. Download thumbnail ---
+                if (v.thumbnailUrl.isNotEmpty())
+                {
+                    juce::URL thumbUrl (v.thumbnailUrl);
+                    int thumbStatus = 0;
+                    auto thumbStream = thumbUrl.createInputStream (
+                        juce::URL::InputStreamOptions (juce::URL::ParameterHandling::inAddress)
+                            .withConnectionTimeoutMs (6000)
+                            .withStatusCode (&thumbStatus));
+
+                    if (thumbStream != nullptr && thumbStatus >= 200 && thumbStatus <= 299)
+                    {
+                        juce::MemoryBlock data;
+                        thumbStream->readIntoMemoryBlock (data);
+                        v.thumbnail = juce::ImageFileFormat::loadFrom (data.getData(), data.getSize());
+                    }
+                }
+
+                if (threadShouldExit()) return;
+
+                videos[count++] = std::move (v);
+            }
+        }
+
+        success = (count > 0);
+    }
+    catch (...)
+    {
+        success = false;
+    }
+
+    juce::MessageManager::callAsync (onComplete);
+}
+
 // Define styling colors based on HTML neon theme
 const juce::Colour colBackground = juce::Colour::fromString("#FF131313");
 const juce::Colour colSurface = juce::Colour::fromString("#FF2A2A2A");
@@ -99,6 +218,23 @@ MainComponent::MainComponent() {
 
   // Inicia o Timer para atualizar animações da interface gráfica
   startTimer(30);
+
+  // Configura botões de vídeo (ocultos por padrão – mostrados só quando hasInternetVideos)
+  for (int i = 0; i < 3; ++i)
+  {
+    addChildComponent (videoCardBtns[i]);
+    videoCardBtns[i].setButtonText ("");
+    videoCardBtns[i].setColour (juce::TextButton::buttonColourId,  juce::Colours::transparentBlack);
+    videoCardBtns[i].setColour (juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
+    const int idx = i;
+    videoCardBtns[i].onClick = [this, idx] {
+      if (hasInternetVideos && idx < 3 && latestVideos[idx].videoUrl.isNotEmpty())
+        juce::URL (latestVideos[idx].videoUrl).launchInDefaultBrowser();
+    };
+  }
+
+  // Dispara busca do RSS em thread de background
+  startRssFetch();
 }
 
 void MainComponent::startWarmup() {
@@ -126,6 +262,14 @@ MainComponent::~MainComponent() {
 
   stopTimer();
 
+  // Para a thread RSS se ainda estiver rodando
+  if (rssFetcher != nullptr)
+  {
+    rssFetcher->signalThreadShouldExit();
+    rssFetcher->waitForThreadToExit (2000);
+    rssFetcher.reset();
+  }
+
   // Garante que o worker em segundo plano seja parado
   if (engineWorker != nullptr) {
     engineWorker->signalThreadShouldExit();
@@ -138,6 +282,32 @@ MainComponent::~MainComponent() {
   StemEngine::getInstance().shutdown();
 
   cleanTempDirectory();
+}
+
+// =========================================================================
+// RSS Feed
+void MainComponent::startRssFetch()
+{
+  rssFetcher = std::make_unique<RssFetcher> ([this]()
+  {
+    // Callback chamado na MessageThread após a thread terminar
+    if (rssFetcher != nullptr && rssFetcher->success)
+    {
+      latestVideos    = rssFetcher->videos;
+      hasInternetVideos = true;
+    }
+    else
+    {
+      hasInternetVideos = false;
+    }
+    // Se estiver na tela de processamento, re-renderiza para mostrar cards
+    if (currentState == AppState::ScreenProcessing)
+    {
+      resized();
+      repaint();
+    }
+  });
+  rssFetcher->startThread (juce::Thread::Priority::low);
 }
 
 void MainComponent::setupTempDirectory() {
@@ -596,6 +766,104 @@ void MainComponent::drawProcessingScreen(juce::Graphics &g) {
     g.fillRoundedRectangle((float)itemText.getX(), (float)(itemText.getY() + 4),
                            (float)itemText.getWidth() * stemRatio, 3.0f, 1.5f);
   }
+
+  // Seção de vídeos – só renderiza se os dados estiverem prontos
+  if (hasInternetVideos)
+    drawVideoCards (g);
+}
+
+// =========================================================================
+void MainComponent::drawVideoCards (juce::Graphics& g)
+{
+  auto bounds = getLocalBounds().reduced (24);
+  bounds.removeFromTop (60); // header
+
+  // Reserva a mesma área que resized() usa para os cards (parte inferior)
+  // Avança o layout até chegar na zona de vídeos
+  bounds.removeFromTop (40);  // título
+  bounds.removeFromTop (20);  // subtítulo monospace
+  bounds.removeFromTop (20);  // gap
+  bounds.removeFromTop (260 + 24 + 40); // card bento + cancel btn
+  bounds.removeFromTop (16);  // gap antes dos cards
+
+  if (bounds.getHeight() < 80)
+    return; // sem espaço suficiente
+
+  // Texto introdutório
+  auto introArea = bounds.removeFromTop (40);
+  g.setColour (juce::Colour::fromString ("#FFB0BFD8"));
+  g.setFont (juce::Font ("Geist", 13.0f, juce::Font::plain));
+  g.drawText (juce::String (juce::CharPointer_UTF8 (
+      "Enquanto voc\xc3\xaa aguarda, preparamos alguns v\xc3\xad" "deos especiais para voc\xc3\xaa conhecer\n"
+      "melhor nossa hist\xc3\xb3ria e como trabalhamos.")),
+      introArea, juce::Justification::centred, true);
+
+  bounds.removeFromTop (8); // gap
+
+  // Calcula largura de cada card (3 cards com gap de 12px)
+  int totalW  = bounds.getWidth();
+  int cardW   = (totalW - 24) / 3;
+  int cardH   = std::min (bounds.getHeight(), 90);
+  int startX  = bounds.getX();
+  int startY  = bounds.getY();
+
+  for (int i = 0; i < 3; ++i)
+  {
+    auto& v = latestVideos[i];
+    int cx = startX + i * (cardW + 12);
+    juce::Rectangle<int> card (cx, startY, cardW, cardH);
+
+    // Card background
+    g.setColour (juce::Colour::fromString ("#FF1A1A1A"));
+    g.fillRoundedRectangle (card.toFloat(), 8.0f);
+    g.setColour (juce::Colour::fromString ("#FF353534"));
+    g.drawRoundedRectangle (card.toFloat(), 8.0f, 1.0f);
+
+    // Thumbnail area (cobre toda a área superior do card)
+    auto thumbArea = card.reduced (4);
+    thumbArea.removeFromBottom (20); // reserva espaço para título
+
+    if (v.thumbnail.isValid())
+    {
+      // Clip com cantos arredondados
+      juce::Path thumbClip;
+      thumbClip.addRoundedRectangle (thumbArea.toFloat(), 6.0f);
+      g.saveState();
+      g.reduceClipRegion (thumbClip);
+      g.drawImage (v.thumbnail,
+                   thumbArea.toFloat(),
+                   juce::RectanglePlacement::centred | juce::RectanglePlacement::fillDestination);
+      g.restoreState();
+
+      // Ícone play overlay sutil
+      auto playOverlay = thumbArea.withSizeKeepingCentre (28, 28).toFloat();
+      g.setColour (juce::Colours::black.withAlpha (0.45f));
+      g.fillEllipse (playOverlay);
+      g.setColour (juce::Colours::white.withAlpha (0.85f));
+      juce::Path playIcon;
+      playIcon.addTriangle (playOverlay.getX() + 10.0f, playOverlay.getY() + 7.0f,
+                            playOverlay.getX() + 10.0f, playOverlay.getBottom() - 7.0f,
+                            playOverlay.getRight() - 7.0f, playOverlay.getCentreY());
+      g.fillPath (playIcon);
+    }
+    else
+    {
+      // Placeholder escuro com ícone de play
+      g.setColour (juce::Colour::fromString ("#FF252525"));
+      g.fillRoundedRectangle (thumbArea.toFloat(), 6.0f);
+      g.setColour (juce::Colour::fromString ("#FF50FFAF").withAlpha (0.4f));
+      g.setFont (juce::Font (22.0f));
+      g.drawText (juce::String (juce::CharPointer_UTF8 ("\xe2\x96\xb6")),
+                  thumbArea, juce::Justification::centred);
+    }
+
+    // Título
+    auto titleArea = card.reduced (4);
+    titleArea.removeFromTop (titleArea.getHeight() - 20);
+    g.setColour (juce::Colour::fromString ("#FFE0E0E0"));
+    g.setFont (juce::Font ("Geist", 9.5f, juce::Font::bold));
+    g.drawText (v.title, titleArea, juce::Justification::centredLeft, true);
+  }
 }
 
 void MainComponent::drawResultsScreen(juce::Graphics &g) {
@@ -692,6 +960,7 @@ void MainComponent::resized() {
     downloadAllBtn.setVisible(false);
     clearBtn.setVisible(false);
     cancelBtn.setVisible(false);
+    for (auto& btn : videoCardBtns) btn.setVisible (false);
   } else if (currentState == AppState::ScreenUpload) {
     selectFileBtn.setVisible(true);
     progressBar.setVisible(false);
@@ -699,6 +968,7 @@ void MainComponent::resized() {
     downloadAllBtn.setVisible(false);
     clearBtn.setVisible(false);
     cancelBtn.setVisible(false);
+    for (auto& btn : videoCardBtns) btn.setVisible (false);
 
     // Bento grid sizes
     auto bentoArea = bounds.removeFromTop(bounds.getHeight() - 110);
@@ -737,6 +1007,38 @@ void MainComponent::resized() {
     cancelBtn.setBounds(card.getCentreX() - 100, card.getBottom() + 24, 200,
                         40);
     cancelBtn.setVisible(true);
+
+    // -----------------------------------------------------------------------
+    // Video Cards – posiciona botões clicáveis transparentes sobre os cards
+    if (hasInternetVideos)
+    {
+      // Mesmo cálculo de layout de drawVideoCards()
+      auto videoArea = getLocalBounds().reduced (24);
+      videoArea.removeFromTop (60);   // header
+      videoArea.removeFromTop (40);   // título
+      videoArea.removeFromTop (20);   // subtítulo monospace
+      videoArea.removeFromTop (20);   // gap
+      videoArea.removeFromTop (260 + 24 + 40); // bento card + cancel
+      videoArea.removeFromTop (16);   // gap
+      videoArea.removeFromTop (40);   // texto introdutório
+      videoArea.removeFromTop (8);    // gap
+
+      int totalW = videoArea.getWidth();
+      int cardW  = (totalW - 24) / 3;
+      int cardH  = std::min (videoArea.getHeight(), 90);
+
+      for (int i = 0; i < 3; ++i)
+      {
+        int cx = videoArea.getX() + i * (cardW + 12);
+        videoCardBtns[i].setBounds (cx, videoArea.getY(), cardW, cardH);
+        videoCardBtns[i].setVisible (true);
+      }
+    }
+    else
+    {
+      for (auto& btn : videoCardBtns)
+        btn.setVisible (false);
+    }
   } else if (currentState == AppState::ScreenResults) {
     selectFileBtn.setVisible(false);
     progressBar.setVisible(false);
@@ -744,6 +1046,7 @@ void MainComponent::resized() {
     downloadAllBtn.setVisible(true);
     clearBtn.setVisible(true);
     cancelBtn.setVisible(false);
+    for (auto& btn : videoCardBtns) btn.setVisible (false);
 
     bounds.removeFromTop(90); // skip headers
 

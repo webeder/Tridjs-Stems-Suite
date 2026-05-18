@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 #include "StemEngine.h"
 #include <functional>
+#include <array>
 
 class CustomLookAndFeel : public juce::LookAndFeel_V4
 {
@@ -215,6 +216,33 @@ private:
     bool success = false;
 };
 
+// =========================================================================
+// RSS Video Info
+struct VideoInfo
+{
+    juce::String title;
+    juce::String videoUrl;
+    juce::String thumbnailUrl;
+    juce::Image  thumbnail;
+};
+
+// Thread that fetches the RSS feed and downloads thumbnails silently
+class RssFetcher : public juce::Thread
+{
+public:
+    explicit RssFetcher (std::function<void()> onDone)
+        : Thread ("RssFetcher"), onComplete (std::move (onDone)) {}
+
+    void run() override;
+
+    // Safe to read from the message thread after onComplete fires
+    std::array<VideoInfo, 3> videos;
+    bool                     success = false;
+
+private:
+    std::function<void()> onComplete;
+};
+
 class MainComponent  : public juce::Component,
                        public juce::FileDragAndDropTarget,
                        public juce::Timer
@@ -249,6 +277,16 @@ private:
     AppState currentState = AppState::ScreenSplash;
     juce::Image splashImage;
     int splashTimeoutCounter = 0;
+
+    // =========================================================================
+    // RSS / Video Cards
+    bool hasInternetVideos = false;
+    std::array<VideoInfo, 3> latestVideos;
+    std::unique_ptr<RssFetcher> rssFetcher;
+    // Clickable buttons – one per video card (invisible on ScreenProcessing if !hasInternetVideos)
+    std::array<juce::TextButton, 3> videoCardBtns;
+    void startRssFetch();
+    void drawVideoCards (juce::Graphics& g);
 
     // =========================================================================
     // Core Logic
