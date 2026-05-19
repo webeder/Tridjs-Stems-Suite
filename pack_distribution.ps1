@@ -1,6 +1,6 @@
 # =============================================================================
 # pack_distribution.ps1
-# Script de empacotamento de distribuição do TriDJs Stems
+# Script de empacotamento de distribuicao do TriDJs Stems
 #
 # Uso: .\pack_distribution.ps1
 #      .\pack_distribution.ps1 -Config Debug
@@ -20,23 +20,23 @@ $RESOURCES    = @("logo.png", "splash.png")
 
 Write-Host ""
 Write-Host "============================================================" -ForegroundColor Cyan
-Write-Host "  TriDJs Stems – Empacotador de Distribuição" -ForegroundColor Cyan
+Write-Host "  TriDJs Stems - Empacotador de Distribuicao" -ForegroundColor Cyan
 Write-Host "  Config : $Config" -ForegroundColor Cyan
 Write-Host "  Output : $Output" -ForegroundColor Cyan
 Write-Host "============================================================" -ForegroundColor Cyan
 Write-Host ""
 
-# 1. Cria pasta de saída limpa
+# 1. Cria pasta de saida limpa
 if (Test-Path $Output) {
     Remove-Item -Recurse -Force $Output
 }
 New-Item -ItemType Directory -Path $Output | Out-Null
 New-Item -ItemType Directory -Path "$Output\resources" | Out-Null
 
-# 2. Copia o executável principal
+# 2. Copia o executavel principal
 $exePath = Join-Path $EXE_DIR $EXE_NAME
 if (-not (Test-Path $exePath)) {
-    Write-Host "[ERRO] Executável não encontrado: $exePath" -ForegroundColor Red
+    Write-Host "[ERRO] Executavel nao encontrado: $exePath" -ForegroundColor Red
     Write-Host "       Execute o build antes de empacotar." -ForegroundColor Yellow
     exit 1
 }
@@ -51,7 +51,7 @@ foreach ($res in $RESOURCES) {
     }
 }
 
-# Modelo de IA (obrigatório)
+# Modelo de IA (obrigatorio)
 $modelSrc = "C:\TridjsStems\htdemucs_compilado.pt"
 if (-not (Test-Path $modelSrc)) {
     $modelSrc = Join-Path $EXE_DIR "htdemucs_compilado.pt"
@@ -60,13 +60,13 @@ if (Test-Path $modelSrc) {
     Copy-Item $modelSrc "$Output\resources\"
     Write-Host "[OK] Modelo IA: htdemucs_compilado.pt" -ForegroundColor Green
 } else {
-    Write-Host "[AVISO] Modelo IA não encontrado – adicione manualmente." -ForegroundColor Yellow
+    Write-Host "[AVISO] Modelo IA nao encontrado - adicione manualmente." -ForegroundColor Yellow
 }
 
 Write-Host ""
-Write-Host "--- GRUPO A: DLLs CPU (obrigatórias em TODOS os clientes) ---" -ForegroundColor White
+Write-Host "--- GRUPO A: DLLs CPU (obrigatorias em TODOS os clientes) ---" -ForegroundColor White
 
-# 4. DLLs CPU – obrigatórias
+# 4. DLLs CPU - obrigatorias
 $CPU_DLLS = @(
     "c10.dll",
     "torch.dll",
@@ -87,22 +87,22 @@ $CPU_DLLS = @(
 $cpuMissing = 0
 foreach ($dll in $CPU_DLLS) {
     $src = Join-Path $LIBTORCH_DIR $dll
-    # Tenta também pegar da pasta do exe (já copiadas anteriormente)
+    # Tenta tambem pegar da pasta do exe (ja copiadas anteriormente)
     if (-not (Test-Path $src)) { $src = Join-Path $EXE_DIR $dll }
     if (Test-Path $src) {
         Copy-Item $src $Output -Force
         Write-Host "  [CPU-OK ] $dll" -ForegroundColor Green
     } else {
-        Write-Host "  [CPU-ERR] $dll NÃO ENCONTRADA – build pode falhar no cliente!" -ForegroundColor Red
+        Write-Host "  [CPU-ERR] $dll NAO ENCONTRADA - build pode falhar no cliente!" -ForegroundColor Red
         $cpuMissing++
     }
 }
 
 Write-Host ""
-Write-Host "--- GRUPO B: DLLs GPU/CUDA (opcionais – aceleração NVIDIA) ---" -ForegroundColor White
+Write-Host "--- GRUPO B: DLLs GPU/CUDA (opcionais - aceleracao NVIDIA) ---" -ForegroundColor White
 Write-Host "    (PCs sem GPU NVIDIA funcionam normalmente com CPU)" -ForegroundColor DarkGray
 
-# 5. DLLs GPU – opcionais
+# 5. DLLs GPU - opcionais
 $GPU_DLLS = @(
     "torch_cuda.dll",
     "c10_cuda.dll",
@@ -139,39 +139,39 @@ foreach ($dll in $GPU_DLLS) {
         Write-Host "  [GPU-OK ] $dll" -ForegroundColor Cyan
         $gpuFound++
     } else {
-        Write-Host "  [GPU-N/A] $dll (não encontrada – cliente sem GPU usará CPU)" -ForegroundColor DarkGray
+        Write-Host "  [GPU-N/A] $dll (nao encontrada - cliente sem GPU usara CPU)" -ForegroundColor DarkGray
     }
 }
 
-# 6. Cria README de distribuição
+# 6. Cria README de distribuicao
 $readme = @"
-TriDJs Stems – Pacote de Distribuição
+TriDJs Stems - Pacote de Distribuicao
 ======================================
-Versão : 1.0.0
+Versao : 1.0.0
 Config : $Config
 Data   : $(Get-Date -Format "yyyy-MM-dd HH:mm")
 
-REQUISITOS MÍNIMOS
+REQUISITOS MINIMOS
 ------------------
 - Windows 10 64-bit ou superior
 - 8 GB de RAM (16 GB recomendado)
-- 4 GB de espaço em disco
+- 4 GB de espaco em disco
 
 COM GPU NVIDIA (recomendado)
 - NVIDIA GPU com CUDA Compute Capability 6.0+ (GTX 1060 ou superior)
-- Processamento ~5x mais rápido
+- Processamento ~5x mais rapido
 
 SEM GPU (CPU-only)
 - Funciona em qualquer PC Windows 64-bit
-- Processamento mais lento (1-3 minutos por música)
+- Processamento mais lento (1-3 minutos por musica)
 
-INSTALAÇÃO
+INSTALACAO
 ----------
 1. Extraia todos os arquivos na mesma pasta
 2. Execute "TriDJs Stems.exe"
-3. O programa detecta automaticamente se há GPU disponível
+3. O programa detecta automaticamente se ha GPU disponivel
 
-NÃO MOVA o .exe para outra pasta sem mover as DLLs junto!
+NAO MOVA o .exe para outra pasta sem mover as DLLs junto!
 
 SUPORTE: https://github.com/webeder/Tridjs-Stems-Suite
 "@
@@ -179,12 +179,12 @@ $readme | Out-File -FilePath "$Output\LEIA-ME.txt" -Encoding UTF8
 
 Write-Host ""
 Write-Host "============================================================" -ForegroundColor Cyan
-Write-Host "  Empacotamento concluído!" -ForegroundColor Green
-Write-Host "  Pasta de saída  : $Output" -ForegroundColor White
+Write-Host "  Empacotamento concluido!" -ForegroundColor Green
+Write-Host "  Pasta de saida  : $Output" -ForegroundColor White
 Write-Host "  DLLs CPU        : $($CPU_DLLS.Count - $cpuMissing) / $($CPU_DLLS.Count)" -ForegroundColor White
 Write-Host "  DLLs GPU        : $gpuFound / $($GPU_DLLS.Count)" -ForegroundColor White
 if ($cpuMissing -gt 0) {
-    Write-Host "  [AVISO] $cpuMissing DLL(s) CPU faltando – verifique o libtorch!" -ForegroundColor Red
+    Write-Host "  [AVISO] $cpuMissing DLL(s) CPU faltando - verifique o libtorch!" -ForegroundColor Red
 }
 Write-Host "============================================================" -ForegroundColor Cyan
 Write-Host ""
